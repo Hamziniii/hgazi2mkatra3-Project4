@@ -85,9 +85,10 @@ BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
 
 // Free everything / set everything to 0
 void bp_destroy(BPGame* b) {
-   b->ncols = 0;
-   b->nrows = 0;
-   b->gridHistorySize = 0;
+   // BELOW DOESNT MATTER IF FREEING B
+   // b->ncols = 0; 
+   // b->nrows = 0; 
+   // b->gridHistorySize = 0;
    free(b->gridHistory);
    free(b->grid);
    free(b);
