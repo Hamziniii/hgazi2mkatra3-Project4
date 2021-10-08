@@ -12,6 +12,7 @@ struct bpgame {
    //   A "RUN" OF THE GAME.....
    int nrows; // number of rows
    int ncols; // number of columns
+   int score; 
    char** grid; // the grid itself
 
    int gridHistorySize;
@@ -29,18 +30,25 @@ void randInit() {
    }
 }
 
-BPGame* bp_create(int nrows, int ncols) {
+// gets initial value, NOTE: 
+BPGame* bp_init(int nrows, int ncols) {
    if(nrows > MAX_ROWS || ncols > MAX_COLS) { // If the rows or columns are greater than 40, error out
-      fprintf(stderr, "%s", "Error with nrows (%i) or ncols (%i) in bp_create!\n", nrows, ncols);
+      fprintf(stderr, "%s", "Error with nrows (%i) or ncols (%i) in BPGame creation!\n", nrows, ncols);
       return NULL;
    }
-   randInit();
 
    BPGame* game = malloc(sizeof(BPGame)); // allocate space for the game 
    game->nrows = nrows; // sets the rows
    game->ncols = ncols; // sets the cols
    game->gridHistorySize = 5; // set the history size
    game->gridHistory = malloc(sizeof(char) * game->ncols * game->nrows * game->gridHistorySize); // creates the history
+
+   return game;
+}
+
+BPGame* bp_create(int nrows, int ncols) {
+   randInit();
+   BPGame* game = bp_init(nrows, ncols); // gets init of game
    
    char* grid = malloc(sizeof(char) * game->ncols * game->nrows); // create one big line 
    for(int i = 0; i < game->nrows * game->ncols; i++) { // set eaach value to a random "color"
@@ -63,16 +71,7 @@ BPGame* bp_create(int nrows, int ncols) {
 
 // the same thing as above, but getting vlaues from a matrix instead of random
 BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
-   if(nrows > MAX_ROWS || ncols > MAX_COLS) { // If the rows or columns are greater than 40, error out
-      fprintf(stderr, "%s", "Error with nrows (%i) or ncols (%i) in bp_create!\n", nrows, ncols);
-      return NULL;
-   }
-
-   BPGame* game = malloc(sizeof(BPGame)); // allocate space for the game 
-   game->nrows = nrows; // sets the rows
-   game->ncols = ncols; // sets the cols
-   game->gridHistorySize = 5; // sets the history size
-   game->gridHistory = malloc(sizeof(char) * game->ncols * game->nrows * game->gridHistorySize); // creates the history buffer
+   BPGame* game = bp_init(nrows, ncols); // gets init of game
 
    char* grid = malloc(sizeof(char) * game->ncols * game->nrows); // create one big line 
    for(int r = 0; r < game->nrows; r++) // for each row
@@ -93,3 +92,29 @@ void bp_destroy(BPGame* b) {
    free(b->grid);
    free(b);
 }
+
+// Displays everything 
+void bp_display(BPGame* b) {}
+
+// pop balloon 
+int bp_pop(BPGame * b, int r, int c) {return 0;}
+
+// checks if any more floats can be made
+int bp_is_compact(BPGame * b) {return 0;}
+
+// floats 
+void bp_float_one_step(BPGame * b) {}
+
+// returns the score
+int bp_score(BPGame * b) {
+   return b->score;
+}
+
+// checks to see if the character at that index is a balloon 
+int bp_get_balloon(BPGame * b, int r, int c) {return 0;}
+
+// checks to see if any more clusters exist (which means that they are poppable)
+int bp_can_pop(BPGame * b) {return 0;}
+
+// undos 
+int bp_undo(BPGame * b) {return 0;}
