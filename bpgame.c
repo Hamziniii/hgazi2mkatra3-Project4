@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "bpgame.h"
-<<<<<<< HEAD
-// i was here
-=======
-// kjhkj
->>>>>>> b0d3bee61edfdbf7dec33cafeab831ea8a8b306f
 /** TYPEDEFS / STRUCTs HERE ***/
 struct bpgame {
    // YOU DECIDE WHAT TO PUT IN HERE TO CAPTURE THE STATE OF
