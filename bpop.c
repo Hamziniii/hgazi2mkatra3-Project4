@@ -90,8 +90,7 @@ int is_balloon(int ch) {
 *
 * returns 0/1 for success/failure
 */
-int read_grid(char grid[MAX_ROWS][MAX_COLS], char *file, 
-    int *nrows_out, int *ncols_out) {
+int read_grid(char grid[MAX_ROWS][MAX_COLS], char *file, int *nrows_out, int *ncols_out) {
   FILE *fptr;
   // by the way:  stdin is a global var of type FILE *
   int nrows, ncols;
