@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "bpgame.h"
-
+// i was here
 /** TYPEDEFS / STRUCTs HERE ***/
 struct bpgame {
    // YOU DECIDE WHAT TO PUT IN HERE TO CAPTURE THE STATE OF
