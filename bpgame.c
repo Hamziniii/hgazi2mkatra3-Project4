@@ -13,7 +13,7 @@ struct bpgame {
    int nrows; // number of rows
    int ncols; // number of columns
    int score; 
-   char** grid; // the grid itself
+   char** grid; // the grid itself 
    int gridHistorySize;
    char*** gridHistory; // the history of the grid
 };
