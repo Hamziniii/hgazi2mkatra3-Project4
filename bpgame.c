@@ -7,7 +7,7 @@
 #include "bpgame.h"
 
 /** TYPEDEFS / STRUCTs HERE ***/
-struct bpgame {
+struct bpgame { 
    // YOU DECIDE WHAT TO PUT IN HERE TO CAPTURE THE STATE OF
    //   A "RUN" OF THE GAME.....
    int nrows; // number of rows
