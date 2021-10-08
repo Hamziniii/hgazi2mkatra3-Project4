@@ -5,7 +5,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include "bpgame.h"
+<<<<<<< HEAD
 // i was here
+=======
+// kjhkj
+>>>>>>> b0d3bee61edfdbf7dec33cafeab831ea8a8b306f
 /** TYPEDEFS / STRUCTs HERE ***/
 struct bpgame {
    // YOU DECIDE WHAT TO PUT IN HERE TO CAPTURE THE STATE OF
@@ -118,3 +122,4 @@ int bp_get_balloon(BPGame * b, int r, int c) {return 0;}
 int bp_can_pop(BPGame * b) {return 0;}
 
 // undos 
+int bp_undo(BPGame * b) {return 0;}
