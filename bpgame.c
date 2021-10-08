@@ -7,6 +7,7 @@
 #include "bpgame.h"
 /** TYPEDEFS / STRUCTs HERE ***/
 // i was here again!
+// excuseeeee meeeee
 struct bpgame { 
    // YOU DECIDE WHAT TO PUT IN HERE TO CAPTURE THE STATE OF
    //   A "RUN" OF THE GAME.....
