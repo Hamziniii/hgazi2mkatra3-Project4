@@ -14,12 +14,12 @@ struct bpgame {
    int ncols; // number of columns
    int score; 
    char** grid; // the grid itself
-
    int gridHistorySize;
    char*** gridHistory; // the history of the grid
 };
 
 /*** IMPLEMENTATION OF bp_XXXX FUNCTIONS HERE  ****/
+// This is here so srand() is only called once
 extern int isRandInit = 0;
 
 // Sets the seed if it hasnt been set before
