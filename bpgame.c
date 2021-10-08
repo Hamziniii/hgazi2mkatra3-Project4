@@ -6,19 +6,21 @@
 #include <time.h>
 #include "bpgame.h"
 /** TYPEDEFS / STRUCTs HERE ***/
-struct bpgame {
+// i was here again!
+// excuseeeee memjeeee hewwwwoooo
+struct bpgame { 
    // YOU DECIDE WHAT TO PUT IN HERE TO CAPTURE THE STATE OF
    //   A "RUN" OF THE GAME.....
    int nrows; // number of rows
    int ncols; // number of columns
    int score; 
-   char** grid; // the grid itself
-
+   char** grid; // the grid itself 
    int gridHistorySize;
    char*** gridHistory; // the history of the grid
 };
 
 /*** IMPLEMENTATION OF bp_XXXX FUNCTIONS HERE  ****/
+// This is here so srand() is only called once
 extern int isRandInit = 0;
 
 // Sets the seed if it hasnt been set before
