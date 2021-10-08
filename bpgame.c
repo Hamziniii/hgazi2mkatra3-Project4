@@ -118,4 +118,3 @@ int bp_get_balloon(BPGame * b, int r, int c) {return 0;}
 int bp_can_pop(BPGame * b) {return 0;}
 
 // undos 
-int bp_undo(BPGame * b) {return 0;}
