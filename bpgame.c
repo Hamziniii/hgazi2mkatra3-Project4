@@ -144,12 +144,12 @@ void repeatChar(char c, int times) {
 }
 // displays the column numbers (as seen in .h file)
 void displayColumnNumbers(int number) {
-   repeatChar(' ', 4 + 2); // add the spacers
+   repeatChar(' ', 4 + 3); // add the spacers
    for(int i = 0; i < number; i++) {
       printf("%i ", i / 10); // print out the tens place
    }
    printf("\n");
-   repeatChar(' ', 4 + 2); // add the spacers
+   repeatChar(' ', 4 + 3); // add the spacers
    for(int i = 0; i < number; i++) {
       printf("%i ", i % 10); // print out the ones place
    }
@@ -158,7 +158,7 @@ void displayColumnNumbers(int number) {
 
 // Displays everything 
 void displayLine(int numCols){
-   repeatChar(' ', 4);
+   repeatChar(' ', 4 + 1);
    printf("+");
    repeatChar('-', (numCols * 2) + 1);
    printf("+\n");
