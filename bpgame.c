@@ -32,7 +32,7 @@ void randInit() {
 }
 
 // This pushes the current grid onto the history stack 
-void gridHistoryPush(BPGame * game) {
+void gridHistoryPush(BPGame * game) { // CURRENTLY NOT WORKING BTW
    if(game->gridHistoryIndex >= game->gridHistorySize) { // resize
       char*** temp = game->gridHistory;
       game->gridHistory = calloc(game->gridHistorySize * 2, sizeof(char**));
@@ -58,6 +58,13 @@ char** gridHistoryPop(BPGame * game) {
    return game->gridHistory[game->gridHistoryIndex--]; 
 }
 
+void gridUndoFromHistory(BPGame* game) {
+   char** history = gridHistoryPop(game);
+   for(int i = 0; i < game->nrows; i++)
+      for(int j = 0; j < game->ncols; j++)
+            game->grid[i][j] = history[i][j];
+}
+
 /*** IMPLEMENTATION OF bp_XXXX FUNCTIONS HERE  ****/
 
 // gets initial value, NOTE: you still need to init grid
@@ -71,6 +78,7 @@ BPGame* bp_init(int nrows, int ncols) {
    game->ncols = ncols; // sets the cols
    game->gridHistorySize = 5; // set the history size
    game->gridHistory = malloc(sizeof(char**) * game->gridHistorySize); // creates the history
+
    return game;
 }
 
@@ -100,6 +108,7 @@ BPGame* bp_create(int nrows, int ncols) {
       game->grid[r] = &grid[r * game->nrows]; // set it to the the corresponding place in grid var  
    }
 
+   // gridHistoryPush(game);
    return game; 
 }
 
@@ -121,6 +130,8 @@ BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
          }
       }
    }
+
+   // gridHistoryPush(game);
    return game;
 }
 
@@ -131,8 +142,8 @@ void bp_destroy(BPGame* b) {
    // b->nrows = 0; 
    // b->gridHistorySize = 0;
    free(b->gridHistory); // remember, gridHistory is one big malloc
-   free(b->grid[0]); // remember grid is one big malloc
-   free(b->grid); // remember grid is one big malloc
+   free(b->grid[0]); // remember grid column is one big malloc
+   free(b->grid); // remember grid row is one big malloc
    free(b);
 }
 
@@ -179,33 +190,113 @@ void bp_display(BPGame* b) {
    displayColumnNumbers(b->ncols);
 }
 
-// // pop balloon 
-// int bp_pop(BPGame * b, int r, int c) {return 0;}
+// pop balloon 
+int bp_pop(BPGame * b, int r, int c) {
+   if(r < 0 || r >= b->nrows || c < 0 || c >= b->ncols)
+      return 0;
+   
+   int num_pops = 0;
+   int type = bp_get_balloon(b, r, c);
+
+   if (type > 0) {
+      b->grid[r][c] = None;
+      num_pops += 1;
+
+      if(bp_get_balloon(b, r + 1, c) == type) {
+         bp_pop(b, r + 1, c);
+         num_pops += 1;
+      }
+      if(bp_get_balloon(b, r - 1, c) == type) {
+         bp_pop(b, r - 1, c);
+         num_pops += 1;
+      }
+      if(bp_get_balloon(b, r, c + 1) == type) {
+         bp_pop(b, r, c + 1);
+         num_pops += 1;
+      }
+      if(bp_get_balloon(b, r, c - 1) == type) {
+         bp_pop(b, r, c - 1);
+         num_pops += 1;
+      }
+   }
+
+   return num_pops;
+}
 
 // // checks if any more floats can be made
-// int bp_is_compact(BPGame * b) {return 0;}
+int bp_is_compact(BPGame * b) {
+   for(int j = 0; j < b->ncols; j++) // left to right
+      for(int i = b->nrows - 1; i > 0; i--) // bottom to up, dont need to check final row since nothing above it 
+         if(bp_get_balloon(b, i, j) > 0) // check to see if index is balloon 
+            for(int k = i - 1; k > -1; k--) // traverse upwards
+               if(bp_get_balloon(b, k, j) < 0) // check to see if it is a balloon  
+                  return 0; // if air, then return 0
+               else
+                  break; // everthing above is a balloon, so go to next column 
+   return 1; // else return 1
+}
 
-// // floats 
-// void bp_float_one_step(BPGame * b) {}
+// floats by one step
+void bp_float_one_step(BPGame * b) {
+   for(int i = 0; i < b->nrows - 1; i++)
+      for(int j = 0; j < b->ncols - 1; j++)
+         if(bp_get_balloon(b, i, j) < 0) { // if the current index is a balloon, swap it with the item below 
+            char temp = b->grid[i][j];
+            b->grid[i][j] = b->grid[i + 1][j];
+            b->grid[i + 1][j] = temp; 
+         }
+}
 
 // // returns the score
-// int bp_score(BPGame * b) {
-//    return b->score;
-// }
+int bp_score(BPGame * b) {
+   return b->score;
+}
 
 // // checks to see if the character at that index is a balloon 
-// int bp_get_balloon(BPGame * b, int r, int c) {return 0;}
+int bp_get_balloon(BPGame * b, int r, int c) {
+   if(r < 0 || r >= b->nrows || c < 0 || c >= b->ncols)
+      return -1;
+
+   char balloon = b->grid[r][c];
+   switch(balloon){
+      case Red: 
+         return 0;
+         break;
+      case Blue: 
+         return 1; 
+         break;
+      case Green: 
+         break;
+         return 2;
+      case Yellow: 
+         return 3; 
+         break;
+      default: 
+         return -1;
+         break;
+   }
+   return -1;
+}
 
 // // checks to see if any more clusters exist (which means that they are poppable)
-// int bp_can_pop(BPGame * b) {return 0;}
+int bp_can_pop(BPGame * b) {
+   int type = -1;
+   for(int i = 0; i < b->nrows; i++)
+      for(int j = 0; j < b->ncols; j++) {
+         type = b->grid[i][j];
+         if(type > 0 && (bp_get_balloon(b, i + 1, j) == type || bp_get_balloon(b, i - 1, j) == type || bp_get_balloon(b, i, j + 1) == type || bp_get_balloon(b, i, j - 1) == type))
+            return 1;
+      }
+   return 0;
+}
 
 // // undos 
 // int bp_undo(BPGame * b) {return 0;}
 
 int main() {
    randInit();
-   int rows = 15;
-   int cols = 15;
+   int rows = 5;
+   int cols = 5;
    BPGame* game = bp_create(rows, cols);
    bp_display(game);
 
