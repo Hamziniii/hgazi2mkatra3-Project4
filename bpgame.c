@@ -164,11 +164,11 @@ void displayLine(int numCols){
    printf("+\n");
 }
 void bp_display(BPGame* b) {
-   displayLine(b->nrows);
+   displayLine(b->ncols);
    
    for (int r = 0; r < b->nrows; r++){
       repeatChar(' ', 2);
-      printf("%d |", r);
+      printf("%d%d |", r / 10, r % 10);
       for (int c = 0; c < b->ncols; c++){
          printf(" %c", b->grid[r][c]);
       }
@@ -202,21 +202,10 @@ void bp_display(BPGame* b) {
 // // undos 
 // int bp_undo(BPGame * b) {return 0;}
 
-void test() {
-   int rows = 3;
-   int cols = 3;
-   int** t = malloc(sizeof(int) * rows * cols);
-   for(int i = 0; i < rows * cols; i++)
-      t[i] = i; 
-   for(int i = 0; i < rows; i++)
-      for(int j = 0; j < rows; j++)
-         printf("%c ", t[i][j]);
-}
-
 int main() {
    randInit();
-   int rows = 3;
-   int cols = 3;
+   int rows = 15;
+   int cols = 15;
    BPGame* game = bp_create(rows, cols);
    bp_display(game);
 
