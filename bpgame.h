@@ -114,13 +114,13 @@ extern void bp_destroy(BPGame * b);
 *  This board is full of balloons (like at the beginning of a game).
 * 
 *       +-----------------------+
-*		  0 | + + + = + ^ ^ o + = = |
-*		  1 | ^ = = o + o + + + ^ = |
-*		  2 | ^ + ^ o + o + = = = = |
-*		  3 | = ^ o o = o + + + = = |
-*		    +-----------------------+
-* 		    0 0 0 0 0 0 0 0 0 0 1
-*		      0 1 2 3 4 5 6 7 8 9 0
+*     0 | + + + = + ^ ^ o + = = |
+*     1 | ^ = = o + o + + + ^ = |
+*     2 | ^ + ^ o + o + = = = = |
+*     3 | = ^ o o = o + + + = = |
+*       +-----------------------+
+*         0 0 0 0 0 0 0 0 0 0 1
+*         0 1 2 3 4 5 6 7 8 9 0
 *
 *
 *  This board has some empty slots represented by  '.'

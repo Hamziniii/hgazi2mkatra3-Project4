@@ -8,10 +8,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <Windows.h>
 #include <time.h>
 #include <ctype.h>
 #include "bpgame.h"
-// #include "simpleio.h"
+#include "simpleio.h"
 
 // kludge:  symbol used in input files for "no balloon".
 //          may not match symbol used by bboard
