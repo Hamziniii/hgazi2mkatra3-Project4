@@ -314,6 +314,7 @@ int main() {
 
    BPGame* game = bp_create_from_mtx(arr, 5, 5);
    bp_display(game);
+
    // bp_pop(game, 2, 2);
    // bp_display(game);
    // bp_float_one_step(game);
@@ -324,3 +325,13 @@ int main() {
    bp_destroy(game);
    return 0;
 }
+
+/* 
+   TODO:
+   Figure out what is going wrong wtih 2d array in create from mtx
+   Allow create mtx to work from a file
+   Get history working / undo working
+   Test out the functions 
+   Connect to bpop.c and test it 
+   Submit
+*/
