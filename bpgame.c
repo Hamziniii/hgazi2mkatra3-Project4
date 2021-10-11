@@ -114,6 +114,7 @@ BPGame* bp_create(int nrows, int ncols) {
 
 // the same thing as above, but getting vlaues from a matrix instead of random
 BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
+   printf("potato");
    BPGame* game = bp_init(nrows, ncols); // gets init of game
 
    char* grid = malloc(sizeof(char) * game->ncols * game->nrows); // create one big line 
@@ -124,6 +125,7 @@ BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
       for(int j = 0; j < game->ncols; j++) {
          if((mtx[i][j] == Red) || (mtx[i][j] == Blue) || (mtx[i][j] == Green) || (mtx[i][j] == Yellow)) {
             game->grid[i][j] = mtx[i][j]; // for each value in the matrix, set it into the game grid
+            // bp_display(game);
          } else {
             fprintf(stderr, "Error! matrix color is invalid in bp_create_from_mtx!\n");
             return NULL;
@@ -238,6 +240,9 @@ int bp_is_compact(BPGame * b) {
 
 // floats by one step
 void bp_float_one_step(BPGame * b) {
+   if(bp_is_compact(b))
+      return; 
+
    for(int i = 0; i < b->nrows - 1; i++)
       for(int j = 0; j < b->ncols - 1; j++)
          if(bp_get_balloon(b, i, j) < 0) { // if the current index is a balloon, swap it with the item below 
@@ -295,10 +300,26 @@ int bp_can_pop(BPGame * b) {
 
 int main() {
    randInit();
-   int rows = 5;
-   int cols = 5;
-   BPGame* game = bp_create(rows, cols);
+   // int rows = 5;
+   // int cols = 5;
+   // BPGame* game = bp_create(rows, cols);
+
+   char arr[5][5] = {
+      '^', '^', '+', '+', '^', 
+      '=', '^', '+', 'o', '^', 
+      '=', '^', '^', 'o', '^', 
+      '=', '=', '^', 'o', '^', 
+      '=', '=', '=', '=', '='
+   };
+
+   BPGame* game = bp_create_from_mtx(arr, 5, 5);
    bp_display(game);
+   // bp_pop(game, 2, 2);
+   // bp_display(game);
+   // bp_float_one_step(game);
+   // bp_display(game);
+   // bp_float_one_step(game);
+   // bp_display(game);
 
    bp_destroy(game);
    return 0;
