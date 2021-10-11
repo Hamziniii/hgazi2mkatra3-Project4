@@ -131,6 +131,7 @@ void bp_destroy(BPGame* b) {
    // b->nrows = 0; 
    // b->gridHistorySize = 0;
    free(b->gridHistory); // remember, gridHistory is one big malloc
+   free(b->grid[0]); // remember grid is one big malloc
    free(b->grid); // remember grid is one big malloc
    free(b);
 }
@@ -219,5 +220,6 @@ int main() {
    BPGame* game = bp_create(rows, cols);
    bp_display(game);
 
+   bp_destroy(game);
    return 0;
 }
