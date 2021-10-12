@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <Windows.h>
 #include <time.h>
 #include <ctype.h>
 #include "bpgame.h"
