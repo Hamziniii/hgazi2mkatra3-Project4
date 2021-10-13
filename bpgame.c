@@ -11,12 +11,19 @@ struct bpgame {
   int ncols; // number of columns
   int score; // the current score of the person 
 
-  char** grid; // the grid itself 
-  int gridHistorySize; // the size of the grid history array
-  int gridHistoryIndex; // the location of the grid history index
-  int gridHistoryMaxIndex; // the highest location the index has been at
-  char*** gridHistory; // the history of the grid
+  // char** grid; // the grid itself 
+  // int gridHistorySize; // the size of the grid history array
+  // int gridHistoryIndex; // the location of the grid history index
+  // int gridHistoryMaxIndex; // the highest location the index has been at
+  // char*** gridHistory; // the history of the grid
 };
+
+// struct gridHistory {
+//   char*** cube; 
+//   int size; 
+//   int index; 
+//   int maxIndex; 
+// }
 
 /** Helper functions  */
 // This is here so srand() is only called once
@@ -40,49 +47,49 @@ char** createGrid(int nrows, int ncols) {
 }
 
 // This pushes the current grid onto the history stack 
-void gridHistoryPush(BPGame * game) { // CURRENTLY NOT WORKING BTW
-  if(game->gridHistoryIndex >= game->gridHistorySize) { // resize
-    char*** temp = game->gridHistory;
-    game->gridHistory = calloc(game->gridHistorySize * 2, sizeof(char**));
+// void gridHistoryPush(BPGame * game) { // CURRENTLY NOT WORKING BTW
+//   if(game->gridHistoryIndex >= game->gridHistorySize) { // resize
+//     char*** temp = game->gridHistory;
+//     game->gridHistory = calloc(game->gridHistorySize * 2, sizeof(char**));
     
-    int i = 0;
-    for(i; i < game->gridHistorySize; i++) // copy over each grid 
-      game->gridHistory[i] = temp[i];
+//     int i = 0;
+//     for(i; i < game->gridHistorySize; i++) // copy over each grid 
+//       game->gridHistory[i] = temp[i];
 
-    game->gridHistorySize *= 2;
-    free(temp); // free previous pointer 
+//     game->gridHistorySize *= 2;
+//     free(temp); // free previous pointer 
 
-    for(i; i < game->gridHistorySize; i++)
-      game->gridHistory[i] = createGrid(game->nrows, game->ncols); // create a grid for the rest of the spots
-  }
+//     for(i; i < game->gridHistorySize; i++)
+//       game->gridHistory[i] = createGrid(game->nrows, game->ncols); // create a grid for the rest of the spots
+//   }
 
-  for(int r = 0; r < game->nrows; r++)
-    for(int c = 0; c < game->ncols; c++)
-      game->gridHistory[game->gridHistoryIndex][r][c] = game->grid[r][c]; // copy EVERY INDEX, cannot set pointers equal 
-  game->gridHistoryIndex++; // incremenet marker
+//   for(int r = 0; r < game->nrows; r++)
+//     for(int c = 0; c < game->ncols; c++)
+//       game->gridHistory[game->gridHistoryIndex][r][c] = game->grid[r][c]; // copy EVERY INDEX, cannot set pointers equal 
+//   game->gridHistoryIndex++; // incremenet marker
 
-  if(game->gridHistoryMaxIndex < game->gridHistoryIndex)
-    game->gridHistoryMaxIndex = game->gridHistoryIndex;
-}
+//   if(game->gridHistoryMaxIndex < game->gridHistoryIndex)
+//     game->gridHistoryMaxIndex = game->gridHistoryIndex;
+// }
 
 // This returns the grid at the current index, and subtracts it by one. CAN RETURN NULL 
-char** gridHistoryPop(BPGame * game) {
-  if(game->gridHistoryIndex <= 0) {
-    return NULL;
-  }
-  game->gridHistoryIndex -= 1;
-  return game->gridHistory[game->gridHistoryIndex]; 
-}
+// char** gridHistoryPop(BPGame * game) {
+//   if(game->gridHistoryIndex <= 0) {
+//     return NULL;
+//   }
+//   game->gridHistoryIndex -= 1;
+//   return game->gridHistory[game->gridHistoryIndex]; 
+// }
 
-void gridUndoFromHistory(BPGame* game) {
-  char** history = gridHistoryPop(game);
-  printf("some char maybe? %c\n", history[4][0]);
-  game->grid = history; 
-  // for(int i = 0; i < game->nrows; i++)
-  //     game->grid[i] = history[i]; // all you need to do is copy the rows, no need for anything else since it passes the pointer 
-    // for(int j = 0; j < game->ncols; j++)
-    //   game->grid[i][j] = history[i][j];
-}
+// void gridUndoFromHistory(BPGame* game) {
+//   char** history = gridHistoryPop(game);
+//   printf("some char maybe? %c\n", history[4][0]);
+//   game->grid = history; 
+//   // for(int i = 0; i < game->nrows; i++)
+//   //     game->grid[i] = history[i]; // all you need to do is copy the rows, no need for anything else since it passes the pointer 
+//     // for(int j = 0; j < game->ncols; j++)
+//     //   game->grid[i][j] = history[i][j];
+// }
 
 /*** IMPLEMENTATION OF bp_XXXX FUNCTIONS HERE  ****/
 
@@ -96,13 +103,13 @@ BPGame* bp_init(int nrows, int ncols) {
   game->nrows = nrows; // sets the rows
   game->ncols = ncols; // sets the cols
   game->grid = malloc(sizeof(char*) * game->nrows);
-  game->gridHistorySize = 5; // set the history size
-  game->gridHistory = malloc(sizeof(char**) * game->gridHistorySize); // creates the history
-  game->gridHistoryIndex = 0;
-  game->gridHistoryMaxIndex = 0;
+  // game->gridHistorySize = 5; // set the history size
+  // game->gridHistory = malloc(sizeof(char**) * game->gridHistorySize); // creates the history
+  // game->gridHistoryIndex = 0;
+  // game->gridHistoryMaxIndex = 0;
 
-  for(int i = 0; i < game->gridHistorySize; i++)
-    game->gridHistory[i] = createGrid(game->nrows, game->ncols);
+  // for(int i = 0; i < game->gridHistorySize; i++)
+  //   game->gridHistory[i] = createGrid(game->nrows, game->ncols);
 
   return game;
 }
@@ -132,7 +139,7 @@ BPGame* bp_create(int nrows, int ncols) {
     game->grid[r] = &grid[r * game->nrows]; // set it to the the corresponding place in grid var  
   }
 
-  gridHistoryPush(game);
+  // gridHistoryPush(game);
   return game; 
 }
 
@@ -155,7 +162,7 @@ BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
     }
   }
 
-  gridHistoryPush(game);
+  // gridHistoryPush(game);
   return game;
 }
 
@@ -166,11 +173,11 @@ void bp_destroy(BPGame* b) {
   // b->nrows = 0; 
   // b->gridHistorySize = 0;
   
-  for(int s = 0; s < b->gridHistoryMaxIndex + 1; s++) {
-    // free(b->gridHistory[s][0]); // free the big row
-    // free(b->gridHistory[s]); // free the pointers 
-  }
-  free(b->gridHistory); // the history itself 
+  // for(int s = 0; s < b->gridHistoryMaxIndex + 1; s++) {
+  //   // free(b->gridHistory[s][0]); // free the big row
+  //   // free(b->gridHistory[s]); // free the pointers 
+  // }
+  // free(b->gridHistory); // the history itself 
 
   free(b->grid[0]); // remember grid column is one big malloc
   free(b->grid); // remember grid row is one big malloc
@@ -368,7 +375,7 @@ int main() {
 
 /* 
   Current: 
-    All the grid functions are working
+    All the grid functions are working (except you can still pop a single balloon, ik the fix)
     The history is working for the most part
     There is someting that I need to do with the frees 
     Then I need to check if the grow works fine 
