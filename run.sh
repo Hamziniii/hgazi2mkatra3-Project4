@@ -1,2 +1,2 @@
 gcc bpgame.c
-./a.out
+valgrind ./a.out
