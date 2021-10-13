@@ -13,7 +13,12 @@ struct bpgame {
   char** grid; // the grid itself 
 };
 
-struct gridHistory {
+struct game {
+  int score;
+  char** grid; 
+};
+
+struct gameHistory {
   char*** cube; // the stack of grids 
   int size; // how many grids are stored 
   int index; // where we are going to place the next grid 
@@ -40,6 +45,13 @@ char** createGrid(int nrows, int ncols) {
     grid[r] = &bigline[r * nrows]; // set each row to a part of the big line 
   return grid; 
 }
+
+// void createHistory() {
+
+// }
+// void pushHistory
+// void popHistory
+// void freeHistory 
 
 /*** IMPLEMENTATION OF bp_XXXX FUNCTIONS HERE  ****/
 
