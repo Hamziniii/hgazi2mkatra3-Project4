@@ -15,7 +15,7 @@ struct gameState {
 typedef struct gameState GameState;
 
 struct gameHistory {
-  char*** cube; // the stack of grids 
+  GameState** cube; // the stack of grids 
   int size; // how many grids are stored 
   int index; // where we are going to place the next grid 
 };
@@ -41,6 +41,12 @@ void randInit() {
   }
 }
 
+void copyGrid(char** from, char** to, int nrows, int ncols) {
+  for(int r = 0; r < nrows; r++)
+    for(int c = 0; c < ncols; c++)
+      to[r][c] = from[r][c];
+}
+
 // creates a matrix using two malloc()'s. Free's are only free(mtx[0]) and free(mtx)
 char** createGrid(int nrows, int ncols) {
   char* bigline = malloc(sizeof(char) * ncols * nrows); // one big line of stuff
@@ -51,19 +57,33 @@ char** createGrid(int nrows, int ncols) {
 }
 
 void resizeHistory(BPGame* b) {
-  char*** temp = b->gameHistory->cube; 
-  b->gameHistory->cube = malloc(sizeof(GameState) * b->gameHistory->size * 2);
-  for(int i = 0; i < b->gameHistory->size; i++)
-    b->gameHistory->cube[i] = temp[i];
-  free(temp);
-  b->gameHistory->size *= 2;
+  GameHistory* temp = b->gameHistory; 
+  b->gameHistory->cube = malloc(sizeof(GameState*) * b->gameHistory->size * 2); //realloc to double the size
+  int i = 0;
+  for(i; i < b->gameHistory->size; i++) { // copy over previous values
+    b->gameHistory->cube[i] = malloc(sizeof(GameState));
+    b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
+    copyGrid(b->gameHistory->cube[i]->grid, temp->cube[i]->grid, b->nrows, b->ncols);
+    b->gameHistory->cube[i]->score = temp->cube[i]->score;
+  }
+  b->gameHistory->size *= 2; // double the size 
+  for(i; i < b->gameHistory->size; i++) { // initialize new values
+    b->gameHistory->cube[i] = malloc(sizeof(GameState));
+    b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
+    b->gameHistory->cube[i]->score = 0;
+  }
+
+  // free(temp);
 }
 
 void createHistory(BPGame* b) {
   b->gameHistory->size = 3;
-  b->gameHistory->cube = malloc(sizeof(GameState) * b->gameHistory->size);
+  b->gameHistory->index = 0;
+  b->gameHistory->cube = malloc(sizeof(GameState*) * b->gameHistory->size);
   for(int i = 0; i < b->gameHistory->size; i++) {
-    b->gameHistory->cube[i] = createGrid(b->nrows, b->ncols);
+    b->gameHistory->cube[i] = malloc(sizeof(GameState));
+    b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
+    b->gameHistory->cube[i]->score = 0;
   }
 }
 
@@ -71,20 +91,30 @@ void pushHistory(BPGame* b) {
   if(b->gameHistory->size <= b->gameHistory->index)
     resizeHistory(b);
   for(int i = 0; i < b->nrows; i++)
-    for(int j = 0; j < b->ncols; j++)
-      b->gameHistory->cube[b->gameHistory->index][i][j] = b->gameState->grid[i][j]; 
-  b->gameHistory->index++;
+    for(int j = 0; j < b->ncols; j++) {
+      b->gameHistory->cube[b->gameHistory->index]->grid[i][j] = b->gameState->grid[i][j];
+    }
+  b->gameHistory->cube[b->gameHistory->index]->score = b->gameState->score; 
+  
+  // for(int i = 0; i < b->nrows; i++)
+  //   for(int j = 0; j < b->ncols; j++)
+  //     printf("Char at %i %i is %c \n", i, j, b->gameHistory->cube[b->gameHistory->index][i][j]);
+
+  b->gameHistory->index += 1;
 }
+
 void popHistory(BPGame* b) {
+  b->gameHistory->index--;
   for(int i = 0; i < b->nrows; i++)
     for(int j = 0; j < b->ncols; j++)
-      b->gameState->grid[i][j] = b->gameHistory->cube[b->gameHistory->index][i][j];
-  b->gameHistory->index--;
+      b->gameState->grid[i][j] = b->gameHistory->cube[b->gameHistory->index]->grid[i][j];
+  b->gameState->score = b->gameHistory->cube[b->gameHistory->index]->score;
 }
 
 void freeHistory(BPGame* b) {
   for(int k = 0; k < b->gameHistory->size; k++) {
-    free(b->gameHistory->cube[k][0]);
+    free(b->gameHistory->cube[k]->grid[0]);
+    free(b->gameHistory->cube[k]->grid);
     free(b->gameHistory->cube[k]);
   }
   free(b->gameHistory->cube);
@@ -104,6 +134,7 @@ BPGame* bp_init(int nrows, int ncols) {
   game->ncols = ncols; // sets the cols
   game->gameState = malloc(sizeof(GameState));
   game->gameState->grid = createGrid(game->nrows, game->ncols);
+  game->gameState->score = 0;
   game->gameHistory = malloc(sizeof(GameHistory));
   createHistory(game);
 
@@ -132,6 +163,7 @@ BPGame* bp_create(int nrows, int ncols) {
     }
   }
 
+  pushHistory(game);
   return game; 
 }
 
@@ -149,6 +181,7 @@ BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
     }
   }
 
+  pushHistory(game);
   return game;
 }
 
@@ -190,20 +223,18 @@ void displayLine(int numCols){
   repeatChar('-', (numCols * 2) + 1);
   printf("+\n");
 }
+
 void bp_display(BPGame* b) {
+  // printf("\nscore %i \n", bp_score(b));
   displayLine(b->ncols);
    
   for (int r = 0; r < b->nrows; r++){
     if (r / 10 == 0){
       repeatChar(' ', 3);
-    } else {
+    } else{
       repeatChar(' ', 2);
     }
     printf("%d |", r);
-    // if(r / 10 >= 1)
-    //   printf(" %d |", r);
-    // else 
-      // printf("%c%d |", r / 10, r % 10);
     for (int c = 0; c < b->ncols; c++){
       printf(" %c", b->gameState->grid[r][c]);
     }
@@ -214,8 +245,7 @@ void bp_display(BPGame* b) {
   displayColumnNumbers(b->ncols);
 }
 
-// pop balloon 
-int bp_pop(BPGame * b, int r, int c) {
+int pop(BPGame* b, int r, int c, int already) {
   if(r < 0 || r >= b->nrows || c < 0 || c >= b->ncols)
     return 0;
    
@@ -223,18 +253,33 @@ int bp_pop(BPGame * b, int r, int c) {
   int type = bp_get_balloon(b, r, c);
 
   if (type > 0) {
-    b->gameState->grid[r][c] = None;
-    num_pops += 1;
+    if(bp_get_balloon(b, r + 1, c) == type || bp_get_balloon(b, r - 1, c) == type || 
+       bp_get_balloon(b, r, c + 1) == type || bp_get_balloon(b, r, c - 1) == type || already) {
+      b->gameState->grid[r][c] = None;
+      num_pops += 1;
+    } else {
+      return 0;
+    }
 
     if(bp_get_balloon(b, r + 1, c) == type)
-      num_pops += bp_pop(b, r + 1, c);
+      num_pops += pop(b, r + 1, c, 1);
     if(bp_get_balloon(b, r - 1, c) == type)
-      num_pops += bp_pop(b, r - 1, c);
+      num_pops += pop(b, r - 1, c, 1);
     if(bp_get_balloon(b, r, c + 1) == type)
-      num_pops += bp_pop(b, r, c + 1);
+      num_pops += pop(b, r, c + 1, 1);
     if(bp_get_balloon(b, r, c - 1) == type)
-      num_pops += bp_pop(b, r, c - 1);
+      num_pops += pop(b, r, c - 1, 1);
   }
+
+  return num_pops; 
+}
+
+// pop balloon 
+int bp_pop(BPGame * b, int r, int c) {
+  pushHistory(b);
+  int num_pops = pop(b, r, c, 0);
+  printf("\n=pops: %i=\n", num_pops);
+  b->gameState->score += num_pops * (num_pops - 1);
 
   return num_pops;
 }
@@ -312,38 +357,67 @@ int bp_can_pop(BPGame * b) {
   int type = -1;
   for(int i = 0; i < b->nrows; i++)
     for(int j = 0; j < b->ncols; j++) {
-      type = b->gameState->grid[i][j];
-      if(type > 0 && (bp_get_balloon(b, i + 1, j) == type || bp_get_balloon(b, i - 1, j) == type || bp_get_balloon(b, i, j + 1) == type || bp_get_balloon(b, i, j - 1) == type))
+      type = bp_get_balloon(b, i, j);
+      if(type > -1 && (bp_get_balloon(b, i + 1, j) == type || bp_get_balloon(b, i - 1, j) == type || bp_get_balloon(b, i, j + 1) == type || bp_get_balloon(b, i, j - 1) == type))
         return 1;
     }
   return 0;
 }
 
 // // undos 
-// int bp_undo(BPGame * b) {return 0;}
+int bp_undo(BPGame * b) {
+  if(b->gameHistory->index > 0) {
+    popHistory(b);
+    return 1;
+  }
+  return 0;
+}
 
 int main() {
   randInit();
-  int rows = 11;
-  int cols = 8;
-  BPGame* game = bp_create(rows, cols);
+  // int rows = 5;
+  // int cols = 5;
+  // BPGame* game = bp_create(rows, cols);
 
-  // char arr[40][40] = {
-  //   {'^', '^', '+', '+', '^'}, 
-  //   {'=', '^', '+', 'o', '^'}, 
-  //   {'=', '^', '^', 'o', '^'}, 
-  //   {'=', '=', '^', 'o', '^'}, 
-  //   {'=', '=', '=', '=', '='}
-  // };
+  char arr[40][40] = {
+    {'^', '=', '^', '+', '^'}, 
+    {'=', '=', '^', 'o', '^'}, 
+    {'=', '=', '^', 'o', '^'}, 
+    {'=', '=', '^', 'o', '^'}, 
+    {'=', '=', '=', '=', '='}
+  };
 
-  // BPGame* game = bp_create_from_mtx(arr, 5, 5);
-  // bp_display(game);
+  BPGame* game = bp_create_from_mtx(arr, 5, 5);
+  bp_display(game);
 
   printf("\nOriginal\n");
   bp_display(game);
   
 
+  // int t = rand() % rows;
+  // int t2 = rand() % cols;
   printf("\nPopping at 2, 2\n");
+  bp_pop(game, 2, 2);
+  while(!bp_is_compact(game)) {
+    bp_display(game);
+    bp_float_one_step(game);
+  }
+
+  printf("Can pop? %i\n", bp_can_pop(game));
+  // printf("\nPopping at 2, 3");
+  // // bp_pop(game, 2, 3);
+  // // bp_display();
+
+  printf("\nPopping at 3, 4\n");
+  bp_display(game);
+  bp_pop(game, 3, 4);
+  while(!bp_is_compact(game)) {
+    bp_display(game);
+    bp_float_one_step(game);
+  }
+
+  printf("\nPopping at 2, 2\n");
+  bp_display(game);
   bp_pop(game, 2, 2);
   while(!bp_is_compact(game)) {
     bp_display(game);
@@ -352,6 +426,15 @@ int main() {
 
   printf("\nFinal Board\n");
   bp_display(game);
+
+  // printf("\nUndo Board\n");
+  // bp_undo(game);
+  // bp_display(game);
+
+  // printf("\nUndo Board\n");
+  // bp_undo(game);
+  // bp_display(game);
+  
   // bp_display(game);
   // int num;
   // num = bp_pop(game, 0, 4);
@@ -367,7 +450,6 @@ int main() {
 
 /* 
   Current: 
-    All the grid functions are working (except you can still pop a single balloon, ik the fix)
     The history is working for the most part
     There is someting that I need to do with the frees 
     Then I need to check if the grow works fine 
@@ -375,9 +457,10 @@ int main() {
     Then the rest on the TODO
 
   TODO:
-  [x] Figure out what is going wrong wtih 2d array in create from mtx
-  [] Get history working / undo 
+  [] Fix history to work with score 
   [] Test out the functions 
+  [] Check the function headers and make sure that everything is correct
+  [] Make sure that history also changes the score at the point 
   [] Remove main & Connect to bpop.c and test it 
   [] Submit
 */
