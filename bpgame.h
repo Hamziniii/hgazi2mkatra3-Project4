@@ -148,6 +148,7 @@ extern void bp_destroy(BPGame * b);
 *
 */
 extern void bp_display(BPGame * b);
+void bp_display(BPGame* b);
 
 /**
 * Function:  bp_pop

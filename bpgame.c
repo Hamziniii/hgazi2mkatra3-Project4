@@ -57,14 +57,14 @@ char** createGrid(int nrows, int ncols) {
 }
 
 void resizeHistory(BPGame* b) {
-  GameHistory* temp = b->gameHistory; 
+  GameState** cube = b->gameHistory->cube; 
   b->gameHistory->cube = malloc(sizeof(GameState*) * b->gameHistory->size * 2); //realloc to double the size
   int i = 0;
   for(i; i < b->gameHistory->size; i++) { // copy over previous values
     b->gameHistory->cube[i] = malloc(sizeof(GameState));
     b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
-    copyGrid(b->gameHistory->cube[i]->grid, temp->cube[i]->grid, b->nrows, b->ncols);
-    b->gameHistory->cube[i]->score = temp->cube[i]->score;
+    copyGrid(cube[i]->grid,  b->gameHistory->cube[i]->grid, b->nrows, b->ncols);
+    b->gameHistory->cube[i]->score = cube[i]->score;
   }
   b->gameHistory->size *= 2; // double the size 
   for(i; i < b->gameHistory->size; i++) { // initialize new values
@@ -163,7 +163,7 @@ BPGame* bp_create(int nrows, int ncols) {
     }
   }
 
-  pushHistory(game);
+  // pushHistory(game);
   return game; 
 }
 
@@ -181,7 +181,7 @@ BPGame* bp_create_from_mtx(char mtx[][MAX_COLS], int nrows, int ncols) {
     }
   }
 
-  pushHistory(game);
+  // pushHistory(game);
   return game;
 }
 
@@ -225,7 +225,7 @@ void displayLine(int numCols){
 }
 
 void bp_display(BPGame* b) {
-  // printf("\nscore %i \n", bp_score(b));
+  printf("\nscore %i \n", bp_score(b));
   displayLine(b->ncols);
    
   for (int r = 0; r < b->nrows; r++){
@@ -244,6 +244,12 @@ void bp_display(BPGame* b) {
   displayLine(b->ncols);   
   displayColumnNumbers(b->ncols);
 }
+
+void bp_display_STD(BPGame* b) {
+  // printf("\nscore %i \n", bp_score(b));
+  bp_display(b);
+}
+
 
 int pop(BPGame* b, int r, int c, int already) {
   if(r < 0 || r >= b->nrows || c < 0 || c >= b->ncols)
@@ -373,6 +379,7 @@ int bp_undo(BPGame * b) {
   return 0;
 }
 
+/*
 int main() {
   randInit();
   // int rows = 5;
@@ -427,14 +434,12 @@ int main() {
   printf("\nFinal Board\n");
   bp_display(game);
 
-  // printf("\nUndo Board\n");
-  // bp_undo(game);
-  // bp_display(game);
+  while(game->gameHistory->index > 0) {
+    printf("\nUndo Board %i\n", game->gameHistory->index);
+    bp_undo(game);
+    bp_display(game);
+  }
 
-  // printf("\nUndo Board\n");
-  // bp_undo(game);
-  // bp_display(game);
-  
   // bp_display(game);
   // int num;
   // num = bp_pop(game, 0, 4);
@@ -447,6 +452,8 @@ int main() {
   bp_destroy(game);
   return 0;
 }
+
+*/
 
 /* 
   Current: 
