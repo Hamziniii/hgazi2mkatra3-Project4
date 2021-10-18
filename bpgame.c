@@ -379,7 +379,8 @@ int bp_undo(BPGame * b) {
   return 0;
 }
 
-/*
+#define MAIN 1
+#if MAIN
 int main() {
   randInit();
   // int rows = 5;
@@ -452,8 +453,7 @@ int main() {
   bp_destroy(game);
   return 0;
 }
-
-*/
+#endif
 
 /* 
   Current: 
