@@ -1,4 +1,30 @@
 // file:  bpgame.c
+//
+// Author: Hamza Gaziuddin, UIC, Fall 2021
+//         Maryam Katrawala, UIC, Fall 2021
+//
+// This file contains the implementation of the 
+// functions from bpop.c. The functions are implemented
+// to create a balloon pop game. The function utilizes
+// 3 structs to create this game where one contains
+// the grid, another contains the array of grids, and
+// the third which contains each of the other two
+// structs. The following functions are implemented in
+// this file:
+//
+// bp_create
+// bp_create_from_mtx
+// bp_destroy
+// bp_display
+// bp_display_STD
+// bp_pop
+// bp_is_compact
+// bp_float_one_step
+// bp_score
+// get_balloon_type
+// bp_can_pop
+// bp_undo
+//
 
 /** #include statements... **/
 #include <stdio.h>
@@ -117,6 +143,39 @@ void freeHistory(BPGame* b) {
   free(b->gameHistory);
 }
 
+int get_balloon_type(BPGame * b, int r, int c) {
+  if(r < 0 || r >= b->nrows || c < 0 || c >= b->ncols)
+    return -2;
+
+  char balloon = b->gameState->grid[r][c];
+  switch(balloon){
+    case None: 
+      return -1;
+      break;
+    case Red: 
+      // printf("Red!\n");
+      return 1;
+      break;
+    case Blue: 
+      // printf("Blue!\n");
+      return 2; 
+      break;
+    case Green: 
+      // printf("Green!\n");
+      return 3;
+      break;
+    case Yellow: 
+      // printf("Yellow!\n");
+      return 4; 
+      break;
+    default: 
+      printf("this shouldnt be here! %c at [%i][%i]\n", balloon, r, c);
+      return -1;
+      break;
+  }
+  return -1;
+}
+
 /*** IMPLEMENTATION OF bp_XXXX FUNCTIONS HERE  ****/
 
 // gets initial value, NOTE: you still need to init grid
@@ -221,7 +280,7 @@ void displayLine(int numCols){
 }
 
 void bp_display(BPGame* b) {
-  printf("\nscore %i \n", bp_score(b));
+  // printf("\nscore %i \n", bp_score(b));
   displayLine(b->ncols);
    
   for (int r = 0; r < b->nrows; r++){
@@ -243,7 +302,13 @@ void bp_display(BPGame* b) {
 
 void bp_display_STD(BPGame* b) {
   // printf("\nscore %i \n", bp_score(b));
-  bp_display(b);
+  // bp_display(b);
+  for (int r = 0; r < b->nrows; r++){
+    for (int c = 0; c < b->ncols; c++){
+      printf("%c", b->gameState->grid[r][c]);
+    }
+    printf("\n");
+  }
 }
 
 
@@ -252,24 +317,24 @@ int pop(BPGame* b, int r, int c, int already) {
     return 0;
    
   int num_pops = 0;
-  int type = bp_get_balloon(b, r, c);
+  int type = get_balloon_type(b, r, c);
 
   if (type > 0) {
-    if(bp_get_balloon(b, r + 1, c) == type || bp_get_balloon(b, r - 1, c) == type || 
-       bp_get_balloon(b, r, c + 1) == type || bp_get_balloon(b, r, c - 1) == type || already) {
+    if(get_balloon_type(b, r + 1, c) == type || get_balloon_type(b, r - 1, c) == type || 
+       get_balloon_type(b, r, c + 1) == type || get_balloon_type(b, r, c - 1) == type || already) {
       b->gameState->grid[r][c] = None;
       num_pops += 1;
     } else {
       return 0;
     }
 
-    if(bp_get_balloon(b, r + 1, c) == type)
+    if(get_balloon_type(b, r + 1, c) == type)
       num_pops += pop(b, r + 1, c, 1);
-    if(bp_get_balloon(b, r - 1, c) == type)
+    if(get_balloon_type(b, r - 1, c) == type)
       num_pops += pop(b, r - 1, c, 1);
-    if(bp_get_balloon(b, r, c + 1) == type)
+    if(get_balloon_type(b, r, c + 1) == type)
       num_pops += pop(b, r, c + 1, 1);
-    if(bp_get_balloon(b, r, c - 1) == type)
+    if(get_balloon_type(b, r, c - 1) == type)
       num_pops += pop(b, r, c - 1, 1);
   }
 
@@ -280,7 +345,7 @@ int pop(BPGame* b, int r, int c, int already) {
 int bp_pop(BPGame * b, int r, int c) {
   pushHistory(b);
   int num_pops = pop(b, r, c, 0);
-  printf("\n=pops: %i=\n", num_pops);
+  // printf("\n=pops: %i=\n", num_pops);
   b->gameState->score += num_pops * (num_pops - 1);
 
   return num_pops;
@@ -290,9 +355,9 @@ int bp_pop(BPGame * b, int r, int c) {
 int bp_is_compact(BPGame * b) {
   for(int j = 0; j < b->ncols; j++) // left to right
     for(int i = b->nrows - 1; i > 0; i--) // bottom to up, dont need to check final row since nothing above it 
-      if(bp_get_balloon(b, i, j) > 0) // check to see if index is balloon 
+      if(get_balloon_type(b, i, j) > 0) // check to see if index is balloon 
         for(int k = i - 1; k > -1; k--) // traverse upwards
-          if(bp_get_balloon(b, k, j) < 0) // check to see if it is a balloon  
+          if(get_balloon_type(b, k, j) < 0) // check to see if it is a balloon  
             return 0; // if air, then return 0
           else
             break; // everthing above is a balloon, so go to next column 
@@ -306,7 +371,7 @@ void bp_float_one_step(BPGame * b) {
 
   for(int i = 0; i < b->nrows - 1; i++)
     for(int j = 0; j < b->ncols; j++) {
-      if(bp_get_balloon(b, i, j) == -1) {
+      if(get_balloon_type(b, i, j) == -1) {
         // printf("loc: [%i][%i] => %c\n", i, j, b->gameState->grid[i][j]);
         char temp = b->gameState->grid[i][j];
         b->gameState->grid[i][j] = b->gameState->grid[i + 1][j];
@@ -323,35 +388,8 @@ int bp_score(BPGame * b) {
 // // checks to see if the character at that index is a balloon 
 int bp_get_balloon(BPGame * b, int r, int c) {
   if(r < 0 || r >= b->nrows || c < 0 || c >= b->ncols)
-    return -2;
-
-  char balloon = b->gameState->grid[r][c];
-  switch(balloon){
-    case None: 
-      return -1;
-      break;
-    case Red: 
-      // printf("Red!\n");
-      return 1;
-      break;
-    case Blue: 
-      // printf("Blue!\n");
-      return 2; 
-      break;
-    case Green: 
-      // printf("Green!\n");
-      return 3;
-      break;
-    case Yellow: 
-      // printf("Yellow!\n");
-      return 4; 
-      break;
-    default: 
-      printf("this shouldnt be here! %c at [%i][%i]\n", balloon, r, c);
-      return -1;
-      break;
-  }
-  return -1;
+    return -1;
+  return (int) b->gameState->grid[r][c];
 }
 
 // // checks to see if any more clusters exist (which means that they are poppable)
@@ -359,8 +397,8 @@ int bp_can_pop(BPGame * b) {
   int type = -1;
   for(int i = 0; i < b->nrows; i++)
     for(int j = 0; j < b->ncols; j++) {
-      type = bp_get_balloon(b, i, j);
-      if(type > -1 && (bp_get_balloon(b, i + 1, j) == type || bp_get_balloon(b, i - 1, j) == type || bp_get_balloon(b, i, j + 1) == type || bp_get_balloon(b, i, j - 1) == type))
+      type = get_balloon_type(b, i, j);
+      if(type > -1 && (get_balloon_type(b, i + 1, j) == type || get_balloon_type(b, i - 1, j) == type || get_balloon_type(b, i, j + 1) == type || get_balloon_type(b, i, j - 1) == type))
         return 1;
     }
   return 0;
@@ -375,7 +413,7 @@ int bp_undo(BPGame * b) {
   return 0;
 }
 
-#define MAIN 1
+#define MAIN 0
 #if MAIN
 int main() {
   randInit();
@@ -436,6 +474,9 @@ int main() {
     bp_undo(game);
     bp_display(game);
   }
+
+  // just testing the std display function (it works fine)
+  // bp_display_STD(game);
 
   // bp_display(game);
   // int num;
