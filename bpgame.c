@@ -7,20 +7,17 @@
 #include "bpgame.h"
 /** TYPEDEFS / STRUCTs HERE ***/
 
-struct gameState {
+typedef struct gameState {
   int score;
   char** grid; 
-};
+} GameState;
 
-typedef struct gameState GameState;
 
-struct gameHistory {
+typedef struct gameHistory {
   GameState** cube; // the stack of grids 
   int size; // how many grids are stored 
   int index; // where we are going to place the next grid 
-};
-
-typedef struct gameHistory GameHistory;
+} GameHistory;
 
 struct bpgame { 
   int nrows; // number of rows
@@ -72,7 +69,6 @@ void resizeHistory(BPGame* b) {
     b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
     b->gameHistory->cube[i]->score = 0;
   }
-
   // free(temp);
 }
 
