@@ -88,14 +88,18 @@ void resizeHistory(BPGame* b) {
     b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
     copyGrid(cube[i]->grid,  b->gameHistory->cube[i]->grid, b->nrows, b->ncols);
     b->gameHistory->cube[i]->score = cube[i]->score;
+    free(cube[i]->grid[0]);
+    free(cube[i]->grid);
+    free(cube[i]);
   }
+  free(cube);
+  
   b->gameHistory->size *= 2; // double the size 
   for(i; i < b->gameHistory->size; i++) { // initialize new values
     b->gameHistory->cube[i] = malloc(sizeof(GameState));
     b->gameHistory->cube[i]->grid = createGrid(b->nrows, b->ncols);
     b->gameHistory->cube[i]->score = 0;
   }
-  // free(temp);
 }
 
 void createHistory(BPGame* b) {
