@@ -332,6 +332,9 @@ int pop(BPGame* b, int r, int c, int already) {
       return 0;
     }
 
+    if(already == 0)
+      pushHistory(b);
+
     if(get_balloon_type(b, r + 1, c) == type)
       num_pops += pop(b, r + 1, c, 1);
     if(get_balloon_type(b, r - 1, c) == type)
@@ -347,7 +350,6 @@ int pop(BPGame* b, int r, int c, int already) {
 
 // pop balloon 
 int bp_pop(BPGame * b, int r, int c) {
-  pushHistory(b);
   int num_pops = pop(b, r, c, 0);
   // printf("\n=pops: %i=\n", num_pops);
   b->gameState->score += num_pops * (num_pops - 1);
@@ -363,8 +365,8 @@ int bp_is_compact(BPGame * b) {
         for(int k = i - 1; k > -1; k--) // traverse upwards
           if(get_balloon_type(b, k, j) < 0) // check to see if it is a balloon  
             return 0; // if air, then return 0
-          else
-            break; // everthing above is a balloon, so go to next column 
+      else
+        break; // everthing above is a balloon, so go to next column 
   return 1; // else return 1
 }
 
