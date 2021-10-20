@@ -326,14 +326,15 @@ int pop(BPGame* b, int r, int c, int already) {
   if (type > 0) {
     if(get_balloon_type(b, r + 1, c) == type || get_balloon_type(b, r - 1, c) == type || 
        get_balloon_type(b, r, c + 1) == type || get_balloon_type(b, r, c - 1) == type || already) {
+      
+      if(already == 0)
+        pushHistory(b);
+      
       b->gameState->grid[r][c] = None;
       num_pops += 1;
     } else {
       return 0;
     }
-
-    if(already == 0)
-      pushHistory(b);
 
     if(get_balloon_type(b, r + 1, c) == type)
       num_pops += pop(b, r + 1, c, 1);
